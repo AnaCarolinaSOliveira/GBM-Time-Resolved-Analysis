@@ -1,10 +1,8 @@
 #!/usr/bin/env python3 
 
 import gbm
-from gbm import test_data_dir
 from gbm.data import TTE, GbmDetectorCollection
-from gbm.binning.unbinned import bin_by_time, bin_by_snr
-from gbm.plot import Lightcurve, Spectrum
+from gbm.binning.unbinned import bin_by_time
 from gbm.background import BackgroundFitter
 from gbm.background.binned import Polynomial
 import matplotlib.pyplot as plt
