@@ -319,7 +319,7 @@ def main():
                     results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['alpha_err-'] = specfitter.asymmetric_errors(cl=0.9)[2][0]
                     results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['alpha_err+'] = specfitter.asymmetric_errors(cl=0.9)[2][1]
                     results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['beta'] = specfitter.parameters[3]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['epeak_err-'] = specfitter.asymmetric_errors(cl=0.9)[3][0]
+                    results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['beta_err-'] = specfitter.asymmetric_errors(cl=0.9)[3][0]
                     results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['beta_err+'] = specfitter.asymmetric_errors(cl=0.9)[3][1]
                 elif model == 'pl':
                     results['int_{}'.format(interval)]['{}'.format(stat)]['pl']['alpha'] = specfitter.parameters[1]
