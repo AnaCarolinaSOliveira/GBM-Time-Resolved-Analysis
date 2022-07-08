@@ -89,18 +89,19 @@ def rsp_list():
         rsps = GbmDetectorCollection.from_list(rsp_list)
     return rsps
 
-def plotting():
+def plotting(dataset, bins):
     plt.figure(figsize=(15, 8))
-    plt.hist(t, bins=150, histtype='stepfilled', alpha=0.5, density=True, label='Standard Histogram')
-    plt.hist(t, bins=bins, histtype='step', density=True, label='Bayesian blocks', color='black')
+    plt.hist(dataset, bins=150, histtype='stepfilled', alpha=0.5, density=True, label='Standard Histogram')
+    plt.hist(dataset, bins=bins, histtype='step', density=True, label='Bayesian blocks', color='black')
     plt.legend(loc='upper right')
     plt.title('GRB{}'.format(EVENT))
-    #plt.savefig('/Users/anacarolinaoliveira/Downloads/bblock_GRB{}_001.pdf'.format(EVENT))
+    plt.savefig('{}/GRB{}/plots/lightcurve_GRB{}.pdf'.format(PATH_RESULTS, EVENT, EVENT))
     plt.show()
-    
+ 
 def bayesian_blocks(tt, ttstart, ttstop, p0, bkg_integral_distribution=None):
     """
-    Source: threeML framework. (Copyright 2017--2021, G.Vianello, J. M. Burgess, N. Di Lalla, N. Omodei, H. Fleischhack. Revision fe390c3e.)
+    Source: bin_by_bayesian_blocks() function from threeML framework. 
+    (Copyright 2017--2021, G.Vianello, J. M. Burgess, N. Di Lalla, N. Omodei, H. Fleischhack. Revision fe390c3e.)
 
     Divide a series of events characterized by their arrival time in blocks
     of perceptibly constant count rate. If the background integral distribution
@@ -267,7 +268,7 @@ def main():
     edges = bayesian_blocks(t, TIME_RANGE[0], TIME_RANGE[1], p0)
     bins = edges.tolist()
     
-    plotting()
+    plotting(t, bins)
 
     #generating phaii and bkg files for all detectors 
     phaiis = tte2phaiis()
