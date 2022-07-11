@@ -266,6 +266,12 @@ def main():
     edges = bayesian_blocks(t, TIME_RANGE[0], TIME_RANGE[1], p0)
     bins = edges.tolist()
     
+    #creating dir to save results and plots:
+    if not os.path.exist('{}/GRB{}'.format(PATH_RESULTS, EVENT)):
+        os.mkdir('{}/GRB{}'.format(PATH_RESULTS, EVENT))
+    if not os.path.exist('{}/GRB{}/plots'.format(PATH_RESULTS, EVENT)):
+        os.mkdir('{}/GRB{}/plots'.format(PATH_RESULTS, EVENT))
+        
     plotting(t, bins)
 
     #generating phaii and bkg files for all detectors 
