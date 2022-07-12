@@ -43,12 +43,28 @@ def detector_list():
             list_dtc.append(keys[i])
     return list_dtc
 
+def get_fit_file(detector):
+    for file in os.listdir(PATH):
+        if file.startswith('glg_tte_{}_bn{}'.format(detector, EVENT)) and file.endswith('.fit'):
+            filename = file
+    return filename
+
+def get_rsp_file(detector):
+    for file in os.listdir(PATH):
+        if file.startswith('glg_cspec_{}_bn{}'.format(detector, EVENT)) and file.endswith('.rsp2'):
+            filename = file
+            break
+        elif file.startswith('glg_cspec_{}_bn{}'.format(detector, EVENT)) and file.endswith('.rsp2'):
+            filename = file
+    return filename
+
 def get_brightest_det():
     list_dtc = detector_list()
     counts = {}
     for detector in list_dtc:
         if detector.startswith('n'):
-            globals()['{}'.format(detector)] = TTE.open(PATH+'/glg_tte_{}_bn{}_v01.fit'.format(detector, EVENT))
+            filename = get_fit_file(detector)
+            globals()['{}'.format(detector)] = TTE.open('{}/{}'.format(PATH, filename))
             counts['{}'.format(detector)] = globals()['{}'.format(detector)].data.size
     brightest = max(counts, key=counts.get)
     return brightest
@@ -57,7 +73,8 @@ def tte2phaiis():
     list_dtc = detector_list()
     phaii_list = list()
     for detector in list_dtc:
-        globals()['{}'.format(detector)] = TTE.open(PATH+'/glg_tte_{}_bn{}_v01.fit'.format(detector, EVENT))
+        filename = get_fit_file(detector)
+        globals()['{}'.format(detector)] = TTE.open('{}/{}'.format(PATH, filename))
         globals()['{}_phaii'.format(detector)] = globals()['{}'.format(detector)].to_phaii(bin_by_time, BINNING, time_ref=0.0)
         phaii_list.append(globals()['{}_phaii'.format(detector)])
     phaiis = GbmDetectorCollection.from_list(phaii_list)
@@ -75,14 +92,8 @@ def rsp_list():
     rsp_list = list()
     list_dtc = detector_list()
     for i in range(len(list_dtc)):
-        if os.path.isfile(PATH+'/glg_cspec_{}_bn{}_v00.rsp2'.format(list_dtc[i], EVENT)):
-            globals()['rsp{}'.format(i)] = RSP.open(PATH+'/glg_cspec_{}_bn{}_v00.rsp2'.format(list_dtc[i], EVENT))
-        elif os.path.isfile(PATH+'/glg_cspec_{}_bn{}_v01.rsp2'.format(list_dtc[i], EVENT)):
-            globals()['rsp{}'.format(i)] = RSP.open(PATH+'/glg_cspec_{}_bn{}_v01.rsp2'.format(list_dtc[i], EVENT))
-        elif os.path.isfile(PATH+'/glg_cspec_{}_bn{}_v06.rsp2'.format(list_dtc[i], EVENT)):
-            globals()['rsp{}'.format(i)] = RSP.open(PATH+'/glg_cspec_{}_bn{}_v07.rsp'.format(list_dtc[i], EVENT))        
-        else:
-            globals()['rsp{}'.format(i)] = RSP.open(PATH+'/glg_cspec_{}_bn{}_v00.rsp'.format(list_dtc[i], EVENT))
+        rsp_file = get_rsp_file(list_dtc[i])
+        globals()['rsp{}'.format(i)] = RSP.open('{}/{}'.format(PATH, rsp_file))
         rsp_list.append(globals()['rsp{}'.format(i)])
         rsps = GbmDetectorCollection.from_list(rsp_list)
     return rsps
@@ -258,7 +269,8 @@ def bayesian_blocks(tt, ttstart, ttstop, p0, bkg_integral_distribution=None):
 def main():
     #preparing data for bblocks binning step
     brightest = get_brightest_det()
-    bright_det = TTE.open(PATH+'/glg_tte_{}_bn{}_v01.fit'.format(brightest, EVENT))
+    filename = get_fit_file(brightest)
+    bright_det = TTE.open('{}/{}'.format(PATH, filename))
     sliced = bright_det.slice_time([TIME_RANGE])
     t = np.array(sliced.data.time)
     
