@@ -54,7 +54,7 @@ def get_rsp_file(detector):
         if file.startswith('glg_cspec_{}_bn{}'.format(detector, EVENT)) and file.endswith('.rsp2'):
             filename = file
             break
-        elif file.startswith('glg_cspec_{}_bn{}'.format(detector, EVENT)) and file.endswith('.rsp2'):
+        elif file.startswith('glg_cspec_{}_bn{}'.format(detector, EVENT)) and file.endswith('.rsp'):
             filename = file
     return filename
 
