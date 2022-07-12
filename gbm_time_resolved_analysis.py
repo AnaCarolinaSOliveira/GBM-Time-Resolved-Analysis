@@ -267,9 +267,9 @@ def main():
     bins = edges.tolist()
     
     #creating dir to save results and plots:
-    if not os.path.exist('{}/GRB{}'.format(PATH_RESULTS, EVENT)):
+    if not os.path.exists('{}/GRB{}'.format(PATH_RESULTS, EVENT)):
         os.mkdir('{}/GRB{}'.format(PATH_RESULTS, EVENT))
-    if not os.path.exist('{}/GRB{}/plots'.format(PATH_RESULTS, EVENT)):
+    if not os.path.exists('{}/GRB{}/plots'.format(PATH_RESULTS, EVENT)):
         os.mkdir('{}/GRB{}/plots'.format(PATH_RESULTS, EVENT))
         
     plotting(t, bins)
