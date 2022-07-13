@@ -319,7 +319,7 @@ def main():
                 specfitter.fit(MODELS[model], options={'maxiter': 1000})
                 if specfitter.statistic != 0.0:
                     modelplot = ModelFit(fitter=specfitter)
-                    plt.savefig('{}/GRB{}/modelfit_int{}_{}_{}.pdf'.format(PATH_RESULTS, EVENT, interval, stat, model))
+                    plt.savefig('{}/GRB{}/plots/modelfit_int{}_{}_{}.pdf'.format(PATH_RESULTS, EVENT, interval, stat, model))
                 
                 #adding results to dictionary 
                 results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['message'] = specfitter.message
