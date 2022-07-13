@@ -316,38 +316,52 @@ def main():
                     specfitter = SpectralFitterPstat(phas, bkgds.to_list(), rsps.to_list(), method='TNC')
                 else:
                     specfitter = SpectralFitterPgstat(phas, bkgds.to_list(), rsps.to_list(), method='TNC')
+                    
                 specfitter.fit(MODELS[model], options={'maxiter': 1000})
+                
                 if specfitter.statistic != 0.0:
                     modelplot = ModelFit(fitter=specfitter)
                     plt.savefig('{}/GRB{}/plots/modelfit_int{}_{}_{}.pdf'.format(PATH_RESULTS, EVENT, interval, stat, model))
                 
                 #adding results to dictionary 
-                results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['message'] = specfitter.message
-                results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['stat/dof'] = '{}/{}'.format(specfitter.statistic, specfitter.dof)
-                results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['amplitude'] = specfitter.parameters[0]
-                results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['amplitude_err-'] = specfitter.asymmetric_errors(cl=0.9)[0][0]
-                results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['amplitude_err+'] = specfitter.asymmetric_errors(cl=0.9)[0][1]
+                results[f'int_{interval}'][f'{stat}'][f'{model}']['message'] = specfitter.message
+                results[f'int_{interval}'][f'{stat}'][f'{model}']['stat/dof'] = '{}/{}'.format(specfitter.statistic, specfitter.dof)
+                results[f'int_{interval}'][f'{stat}'][f'{model}']['amplitude'] = specfitter.parameters[0]
+                try:
+                    results[f'int_{interval}'][f'{stat}'][f'{model}']['amplitude_err-'] = specfitter.asymmetric_errors(cl=0.9)[0][0]
+                    results[f'int_{interval}'][f'{stat}'][f'{model}']['amplitude_err+'] = specfitter.asymmetric_errors(cl=0.9)[0][1]
+                except RuntimeError:
+                    continue
                 if model == 'band' or model == 'sbpl':
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['epeak'] = specfitter.parameters[1]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['epeak_err-'] = specfitter.asymmetric_errors(cl=0.9)[1][0]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['epeak_err+'] = specfitter.asymmetric_errors(cl=0.9)[1][1]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['alpha'] = specfitter.parameters[2]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['alpha_err-'] = specfitter.asymmetric_errors(cl=0.9)[2][0]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['alpha_err+'] = specfitter.asymmetric_errors(cl=0.9)[2][1]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['beta'] = specfitter.parameters[3]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['beta_err-'] = specfitter.asymmetric_errors(cl=0.9)[3][0]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)]['beta_err+'] = specfitter.asymmetric_errors(cl=0.9)[3][1]
+                    results[f'int_{interval}'][f'{stat}'][f'{model}']['epeak'] = specfitter.parameters[1]
+                    results[f'int_{interval}'][f'{stat}'][f'{model}']['alpha'] = specfitter.parameters[2]
+                    results[f'int_{interval}'][f'{stat}'][f'{model}']['beta'] = specfitter.parameters[3]
+                    try:
+                        results[f'int_{interval}'][f'{stat}'][f'{model}']['epeak_err-'] = specfitter.asymmetric_errors(cl=0.9)[1][0]
+                        results[f'int_{interval}'][f'{stat}'][f'{model}']['epeak_err+'] = specfitter.asymmetric_errors(cl=0.9)[1][1]
+                        results[f'int_{interval}'][f'{stat}'][f'{model}']['alpha_err-'] = specfitter.asymmetric_errors(cl=0.9)[2][0]
+                        results[f'int_{interval}'][f'{stat}'][f'{model}']['alpha_err+'] = specfitter.asymmetric_errors(cl=0.9)[2][1]
+                        results[f'int_{interval}'][f'{stat}'][f'{model}']['beta_err-'] = specfitter.asymmetric_errors(cl=0.9)[3][0]
+                        results[f'int_{interval}'][f'{stat}'][f'{model}']['beta_err+'] = specfitter.asymmetric_errors(cl=0.9)[3][1]
+                    except RuntimeError:
+                        continue
                 elif model == 'pl':
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['pl']['alpha'] = specfitter.parameters[1]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['pl']['alpha_err-'] = specfitter.asymmetric_errors(cl=0.9)[1][0]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['pl']['alpha_err+'] = specfitter.asymmetric_errors(cl=0.9)[1][1]
+                    results[f'int_{interval}'][f'{stat}']['pl']['alpha'] = specfitter.parameters[1]
+                    try:
+                        results[f'int_{interval}'][f'{stat}']['pl']['alpha_err-'] = specfitter.asymmetric_errors(cl=0.9)[1][0]
+                        results[f'int_{interval}'][f'{stat}']['pl']['alpha_err+'] = specfitter.asymmetric_errors(cl=0.9)[1][1]
+                    except RuntimeError:
+                        continue
                 elif model == 'comp':
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['comp']['epeak'] = specfitter.parameters[1]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['comp']['epeak_err-'] = specfitter.asymmetric_errors(cl=0.9)[1][0]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['comp']['epeak_err+'] = specfitter.asymmetric_errors(cl=0.9)[1][1]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['comp']['alpha'] = specfitter.parameters[2]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['comp']['alpha_err-'] = specfitter.asymmetric_errors(cl=0.9)[2][0]
-                    results['int_{}'.format(interval)]['{}'.format(stat)]['comp']['alpha_err+'] = specfitter.asymmetric_errors(cl=0.9)[2][1]
+                    results[f'int_{interval}'][f'{stat}']['comp']['epeak'] = specfitter.parameters[1]
+                    results[f'int_{interval}'][f'{stat}']['comp']['alpha'] = specfitter.parameters[2]
+                    try:
+                        results[f'int_{interval}'][f'{stat}']['comp']['epeak_err-'] = specfitter.asymmetric_errors(cl=0.9)[1][0]
+                        results[f'int_{interval}'][f'{stat}']['comp']['epeak_err+'] = specfitter.asymmetric_errors(cl=0.9)[1][1]
+                        results[f'int_{interval}'][f'{stat}']['comp']['alpha_err-'] = specfitter.asymmetric_errors(cl=0.9)[2][0]
+                        results[f'int_{interval}'][f'{stat}']['comp']['alpha_err+'] = specfitter.asymmetric_errors(cl=0.9)[2][1]
+                    except RuntimeError:
+                        continue
     
     results_file = json.dumps(results, indent = 4)
     with open('{}/{}/modelfit_results.json'.format(PATH_RESULTS, EVENT), 'w') as outfile:
