@@ -16,6 +16,7 @@ import os
 import numpy as np
 import numexpr
 import json
+from math import isclose
 
 #Parameters 
 # TODO function to get some of this information automatically, especially the background range 
