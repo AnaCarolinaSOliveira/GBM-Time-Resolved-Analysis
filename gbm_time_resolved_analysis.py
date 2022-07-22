@@ -104,7 +104,7 @@ def plotting(dataset, bins):
     plt.hist(dataset, bins=150, histtype='stepfilled', alpha=0.5, density=True, label='Standard Histogram')
     plt.hist(dataset, bins=bins, histtype='step', density=True, label='Bayesian blocks', color='black')
     plt.legend(loc='upper right')
-    plt.title('GRB{}'.format(EVENT))
+    plt.title(f'GRB{EVENT}')
     plt.savefig(f'{PATH_RESULTS}/GRB{EVENT}/plots/lightcurve_GRB{EVENT}.pdf')
     plt.show()
  
@@ -278,7 +278,15 @@ def main():
     #getting bayesian blocks 
     edges = bayesian_blocks(t, TIME_RANGE[0], TIME_RANGE[1], p0)
     bins = edges.tolist()
-    
+   
+    #removing edges that are too close to each other
+    for i in range(len(bins)):
+        try:
+            if isclose(bins[i], bins[i+1], abs_tol=1e-1):
+                bins.remove(bins[i+1])
+        except IndexError:
+            break
+            
     #creating dir to save results and plots:
     if not os.path.exists(f'{PATH_RESULTS}/GRB{EVENT}'):
         os.mkdir(f'{PATH_RESULTS}/GRB{EVENT}')
@@ -301,6 +309,8 @@ def main():
             source_range = (bins[interval], bins[interval + 1]) #source range is going to become the slice we're analyzing
         except IndexError:
             source_range = (bins[interval], bins[TIME_RANGE[1]])
+            
+        results[f'int_{interval}']['time_range'] = source_range
         
         phas = phaiis.to_pha(time_ranges=source_range, nai_kwargs={'energy_range':ERANGE_NAI}, bgo_kwargs={'energy_range':ERANGE_BGO})
         rsps = rsp_list() 
