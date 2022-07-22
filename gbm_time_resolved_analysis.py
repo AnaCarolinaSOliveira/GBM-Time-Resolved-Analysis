@@ -46,16 +46,16 @@ def detector_list():
 
 def get_fit_file(detector):
     for file in os.listdir(PATH):
-        if file.startswith('glg_tte_{}_bn{}'.format(detector, EVENT)) and file.endswith('.fit'):
+        if file.startswith(f'glg_tte_{detector}_bn{EVENT}') and file.endswith('.fit'):
             filename = file
     return filename
 
 def get_rsp_file(detector):
     for file in os.listdir(PATH):
-        if file.startswith('glg_cspec_{}_bn{}'.format(detector, EVENT)) and file.endswith('.rsp2'):
+        if file.startswith(f'glg_cspec_{detector}_bn{EVENT}') and file.endswith('.rsp2'):
             filename = file
             break
-        elif file.startswith('glg_cspec_{}_bn{}'.format(detector, EVENT)) and file.endswith('.rsp'):
+        elif file.startswith(f'glg_cspec_{detector}_bn{EVENT}') and file.endswith('.rsp'):
             filename = file
     return filename
 
@@ -65,8 +65,8 @@ def get_brightest_det():
     for detector in list_dtc:
         if detector.startswith('n'):
             filename = get_fit_file(detector)
-            globals()['{}'.format(detector)] = TTE.open('{}/{}'.format(PATH, filename))
-            counts['{}'.format(detector)] = globals()['{}'.format(detector)].data.size
+            globals()[f'{detector}'] = TTE.open(f'{PATH}/{filename}')
+            counts[f'{detector}'] = globals()[f'{detector}'].data.size
     brightest = max(counts, key=counts.get)
     return brightest
 
@@ -75,9 +75,9 @@ def tte2phaiis():
     phaii_list = list()
     for detector in list_dtc:
         filename = get_fit_file(detector)
-        globals()['{}'.format(detector)] = TTE.open('{}/{}'.format(PATH, filename))
-        globals()['{}_phaii'.format(detector)] = globals()['{}'.format(detector)].to_phaii(bin_by_time, BINNING, time_ref=0.0)
-        phaii_list.append(globals()['{}_phaii'.format(detector)])
+        globals()[f'{detector}'] = TTE.open(f'{PATH}/{filename}')
+        globals()[f'{detector}_phaii'] = globals()[f'{detector}'].to_phaii(bin_by_time, BINNING, time_ref=0.0)
+        phaii_list.append(globals()[f'{detector}_phaii'])
     phaiis = GbmDetectorCollection.from_list(phaii_list)
     return phaiis
 
@@ -94,8 +94,8 @@ def rsp_list():
     list_dtc = detector_list()
     for i in range(len(list_dtc)):
         rsp_file = get_rsp_file(list_dtc[i])
-        globals()['rsp{}'.format(i)] = RSP.open('{}/{}'.format(PATH, rsp_file))
-        rsp_list.append(globals()['rsp{}'.format(i)])
+        globals()[f'rsp{i}'] = RSP.open(f'{PATH}/{rsp_file}')
+        rsp_list.append(globals()[f'rsp{i}'])
         rsps = GbmDetectorCollection.from_list(rsp_list)
     return rsps
 
@@ -105,7 +105,7 @@ def plotting(dataset, bins):
     plt.hist(dataset, bins=bins, histtype='step', density=True, label='Bayesian blocks', color='black')
     plt.legend(loc='upper right')
     plt.title('GRB{}'.format(EVENT))
-    plt.savefig('{}/GRB{}/plots/lightcurve_GRB{}.pdf'.format(PATH_RESULTS, EVENT, EVENT))
+    plt.savefig(f'{PATH_RESULTS}/GRB{EVENT}/plots/lightcurve_GRB{EVENT}.pdf')
     plt.show()
  
 def bayesian_blocks(tt, ttstart, ttstop, p0, bkg_integral_distribution=None):
@@ -271,7 +271,7 @@ def main():
     #preparing data for bblocks binning step
     brightest = get_brightest_det()
     filename = get_fit_file(brightest)
-    bright_det = TTE.open('{}/{}'.format(PATH, filename))
+    bright_det = TTE.open(f'{PATH}/{filename}')
     sliced = bright_det.slice_time([TIME_RANGE])
     t = np.array(sliced.data.time)
     
@@ -280,10 +280,10 @@ def main():
     bins = edges.tolist()
     
     #creating dir to save results and plots:
-    if not os.path.exists('{}/GRB{}'.format(PATH_RESULTS, EVENT)):
-        os.mkdir('{}/GRB{}'.format(PATH_RESULTS, EVENT))
-    if not os.path.exists('{}/GRB{}/plots'.format(PATH_RESULTS, EVENT)):
-        os.mkdir('{}/GRB{}/plots'.format(PATH_RESULTS, EVENT))
+    if not os.path.exists(f'{PATH_RESULTS}/GRB{EVENT}'):
+        os.mkdir(f'{PATH_RESULTS}/GRB{EVENT}')
+    if not os.path.exists(f'{PATH_RESULTS}/GRB{EVENT}/plots'):
+        os.mkdir(f'{PATH_RESULTS}/GRB{EVENT}/plots')
         
     plotting(t, bins)
 
@@ -296,7 +296,7 @@ def main():
     
     #now, start iterating through all intervals
     for interval in range(len(bins)-1):
-        results['int_{}'.format(interval)] = {}
+        results[f'int_{interval}'] = {}
         try:
             source_range = (bins[interval], bins[interval + 1]) #source range is going to become the slice we're analyzing
         except IndexError:
@@ -310,9 +310,9 @@ def main():
 
         # Initialize model with our PHAs, backgrounds, and responses
         for stat in STATS:
-            results['int_{}'.format(interval)]['{}'.format(stat)] = {}
+            results[f'int_{interval}'][f'{stat}'] = {}
             for model in MODELS:
-                results['int_{}'.format(interval)]['{}'.format(stat)]['{}'.format(model)] = {}
+                results[f'int_{interval}'][f'{stat}'][f'{model}'] = {}
                 if stat == 'pstat':
                     specfitter = SpectralFitterPstat(phas, bkgds.to_list(), rsps.to_list(), method='TNC')
                 else:
@@ -322,11 +322,11 @@ def main():
                 
                 if specfitter.statistic != 0.0:
                     modelplot = ModelFit(fitter=specfitter)
-                    plt.savefig('{}/GRB{}/plots/modelfit_int{}_{}_{}.pdf'.format(PATH_RESULTS, EVENT, interval, stat, model))
+                    plt.savefig(f'{PATH_RESULTS}/GRB{EVENT}/plots/modelfit_int{interval}_{stat}_{model}.pdf')
                 
                 #adding results to dictionary 
                 results[f'int_{interval}'][f'{stat}'][f'{model}']['message'] = specfitter.message
-                results[f'int_{interval}'][f'{stat}'][f'{model}']['stat/dof'] = '{}/{}'.format(specfitter.statistic, specfitter.dof)
+                results[f'int_{interval}'][f'{stat}'][f'{model}']['stat/dof'] = f'{specfitter.statistic}/{specfitter.dof}'
                 results[f'int_{interval}'][f'{stat}'][f'{model}']['amplitude'] = specfitter.parameters[0]
                 try:
                     results[f'int_{interval}'][f'{stat}'][f'{model}']['amplitude_err-'] = specfitter.asymmetric_errors(cl=0.9)[0][0]
@@ -365,7 +365,7 @@ def main():
                         continue
     
     results_file = json.dumps(results, indent = 4)
-    with open('{}/{}/modelfit_results.json'.format(PATH_RESULTS, EVENT), 'w') as outfile:
+    with open(f'{PATH_RESULTS}/{EVENT}/modelfit_results.json', 'w') as outfile:
         outfile.write(results_file)
 
 if __name__ == "__main__":
